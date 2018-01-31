@@ -6,86 +6,84 @@ const useFloor = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-const resetSquare = obj => {
-  return {
-    ...obj,
-    color: '',
-    isEmpty: false
-  };
+const hideSquare = square => {
+  square.color = '';
+  square.isEmpty = true;
 };
 
 const initialGame = () => {
-  let { num_row, num_pair_square } = gameSetting;
+  let { num_row, num_pair_square, seed } = gameSetting;
 
-  //create array
+  //create squares
   const squares = Array(num_row).fill(0).map((_, x) => {
     return Array(num_row).fill(0).map((_, y) => {
-      return { x, y, isEmpty: true };
+      return { x, y, color: '', isEmpty: true };
     });
   });
 
-  //create color square
+  //create color squares
   for (let i = 0; i < num_pair_square; i++) {
     let color = randomColor();
-    for (let j = 0; j < 4; j++) {
-      let flag = false;
-      while(!flag) {
-        let x = useFloor(0, num_row - 1);
-        let y = useFloor(0, num_row - 1);
+    for (let j = 0; j < seed; j++) {
+      let alreadyFillSquare = false;
+      while (!alreadyFillSquare) {
+        let x = useFloor(0, num_row - 1),
+            y = useFloor(0, num_row - 1);
         if (squares[x][y].isEmpty) {
-          squares[x][y] = {
-            x, y, color,
-            isEmpty: false
-          };
-          flag = true;
+          squares[x][y] = { x, y, color, isEmpty: false };
+          alreadyFillSquare = true;
         }
       }
     }
   }
-  console.log(squares)
   return squares;
 };
 
-const eliminate = (onTriggerPoint, state) => {
-  let checkX = onTriggerPoint.x,
-      checkY = onTriggerPoint.y,
-      checks = [],
-      check = checkX;
-  let { num_row, num_pair_square } = gameSetting;
+const getCrossSquares = (onClickedSquare, state) => {
+  let crossSquares = [],
+      { num_row } = gameSetting;
 
-  const fn = (isX, isIncrement, onTriggerPoint) => {
-    const target = isX ? onTriggerPoint.x : onTriggerPoint.y;
-    if (isIncrement) {
-      for (let i = target; i < num_row; i++) {
-        const tt = isX ? state[i][onTriggerPoint.y] : state[onTriggerPoint.x][i];
-        if (!tt.isEmpty) {
-          checks[checks.length] = tt;
-          break;
-        }
+  const getCrossSquare = (axis, isForward) => {
+    const onClickedPos = onClickedSquare[axis],
+          distance = isForward ? num_row - 1 - onClickedPos : onClickedPos;
+    for (let i = 1; i <= distance; i++) {
+      let square;
+      const checkPos = isForward ? onClickedPos + i : onClickedPos - i;
+      if (axis === 'x') {
+        square = state[checkPos][onClickedSquare.y];
+      } else {
+        square = state[onClickedSquare.x][checkPos];
       }
-    } else {
-      for (let i = target; i > -1; i--) {
-        const tt = isX ? state[i][onTriggerPoint.y] : state[onTriggerPoint.x][i];
-        if (!tt.isEmpty) {
-          checks[checks.length] = tt;
-          break;
-        }
+      if (!square.isEmpty) {
+        return square;
       }
     }
+    return false;
   };
 
-  fn(true, true, onTriggerPoint);
-  fn(true, false, onTriggerPoint);
-  fn(false, true, onTriggerPoint);
-  fn(false, false, onTriggerPoint);
+  ['x', 'y'].forEach(axis => {
+    [true, false].forEach(isForward => {
+      const square = getCrossSquare(axis, isForward);
+      if (square) {
+        crossSquares[crossSquares.length] = square;
+      }
+    });
+  });
 
-  var newState = state.map(s => s);
-  let checkPos = [];
-  for (let i = 0; i < checks.length; i++) {
-    for (let j = i+1; j < checks.length; j++) {
-      if (checks[i].color === checks[j].color) {
-        newState[checks[i].x][checks[i].y] = resetSquare(newState[checks[i].x][checks[i].y]);
-        newState[checks[j].x][checks[j].y] = resetSquare(newState[checks[j].x][checks[j].y]);
+  return crossSquares;
+};
+
+const clickSquare = (square, state) => {
+  let newState = state.map(item => item),
+      crossSquares = getCrossSquares(square, state);
+
+  for (let i = 0; i < crossSquares.length; i++) {
+    for (let start = i + 1, j = start; j < crossSquares.length; j++) {
+      let a = crossSquares[i],
+          b = crossSquares[j];
+      if (a.color === b.color) {
+        hideSquare(newState[a.x][a.y]);
+        hideSquare(newState[b.x][b.y]);
       }
     }
   }
@@ -96,8 +94,8 @@ const game = (state = initialGame(), action) => {
   switch (action.type) {
   case types.NEW_GAME:
     return initialGame();
-  case types.ELIMINATE:
-    return eliminate(action.payload, state);
+  case types.CLICK_SQUARE:
+    return clickSquare(action.payload, state);
   }
   return state;
 };

@@ -1,7 +1,7 @@
 {
-  "name": "square",
+  "name": "cross-match",
   "version": "1.0.0",
-  "description": "a game",
+  "description": "a puzzle game of cross match",
   "scripts": {
     "start": "webpack-dev-server --env=dev --open",
     "dev": "webpack-dev-server --env=dev",

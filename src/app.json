@@ -1,5 +1,6 @@
 {
   "num_row": 10,
   "num_pair_square": 10,
-  "size_square": 50
+  "size_square": 50,
+  "seed": 2
 }

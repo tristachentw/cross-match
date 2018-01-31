@@ -4,7 +4,7 @@ import gameSetting from '../app.json';
 
 export default class Square extends Component {
   handleClick = e => {
-    this.props.actions.eliminate({
+    this.props.actions.clickSquare({
       x: this.props.x, y: this.props.y, color: this.props.color
     });
   }
