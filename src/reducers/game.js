@@ -104,15 +104,17 @@ const game = (state = {squares: initialSquares(), score: 0}, action) => {
       score: 0
     };
   case types.CLICK_SQUARE:
-    let oriLen = checkColorSquares(state.squares);
-    let squares = clickSquare(action.payload, state.squares),
-        newLen = checkColorSquares(squares),
-        len = oriLen - newLen;
+    if (action.payload.isEmpty) {
+      let oriLen = checkColorSquares(state.squares);
+      let squares = clickSquare(action.payload, state.squares),
+          newLen = checkColorSquares(squares),
+          len = oriLen - newLen;
 
-    return {
-      squares,
-      score: state.score + len
-    };
+      return {
+        squares,
+        score: state.score + len
+      };
+    }
   }
   return state;
 };
