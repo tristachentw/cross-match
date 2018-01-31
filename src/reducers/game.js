@@ -23,14 +23,14 @@ const initialSquares = () => {
 
   //create color squares
   for (let i = 0; i < num_pair_square; i++) {
-    let color = randomColor();
+    let color = randomColor({ luminosity: 'light', count: num_pair_square});
     for (let j = 0; j < seed; j++) {
       let alreadyFillSquare = false;
       while (!alreadyFillSquare) {
         let x = useFloor(0, num_row - 1),
             y = useFloor(0, num_row - 1);
         if (squares[x][y].isEmpty) {
-          squares[x][y] = { x, y, color, isEmpty: false };
+          squares[x][y] = { x, y, color: color[i], isEmpty: false };
           alreadyFillSquare = true;
         }
       }

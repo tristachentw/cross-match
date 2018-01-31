@@ -4,6 +4,7 @@ import nib from 'nib';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import CleanWebpackPlugin from 'clean-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import StylusPlugin from './stylus.plugin';
 
 const OUTPUT_FOLDER = './dist',
       SOURCE_FOLDER = './src';
@@ -33,17 +34,16 @@ export default {
           options: { sourceMap: true }
         }, {
           loader: 'stylus-loader',
-          options: { sourceMap: true, use: [nib()], import: ['~nib/lib/nib/index.styl'] }
+          options: {
+            sourceMap: true,
+            use: [
+              nib(),
+              StylusPlugin(path.resolve(__dirname, SOURCE_FOLDER, 'app.json'))
+            ],
+            import: ['~nib/lib/nib/index.styl']
+          }
         }]
       })
-    }, {
-      test: /\.(jpe?g|png|gif|svg)$/,
-      use: [{
-        loader: 'file-loader',
-        options: {
-          name: 'assets/[name].[ext]'
-        }
-      }]
     }]
   },
   plugins: [
