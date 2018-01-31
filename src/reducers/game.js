@@ -11,7 +11,7 @@ const hideSquare = square => {
   square.isEmpty = true;
 };
 
-const initialGame = () => {
+const initialSquares = () => {
   let { num_row, num_pair_square, seed } = gameSetting;
 
   //create squares
@@ -90,12 +90,29 @@ const clickSquare = (square, state) => {
   return newState;
 };
 
-const game = (state = initialGame(), action) => {
+const checkColorSquares = squares => {
+  return squares.reduce((acc,cur) =>
+    acc.concat(cur)
+  , []).filter(item => !item.isEmpty).length;
+};
+
+const game = (state = {squares: initialSquares(), score: 0}, action) => {
   switch (action.type) {
   case types.NEW_GAME:
-    return initialGame();
+    return {
+      squares: initialSquares(),
+      score: 0
+    };
   case types.CLICK_SQUARE:
-    return clickSquare(action.payload, state);
+    let oriLen = checkColorSquares(state.squares);
+    let squares = clickSquare(action.payload, state.squares),
+        newLen = checkColorSquares(squares),
+        len = oriLen - newLen;
+
+    return {
+      squares,
+      score: state.score + len
+    };
   }
   return state;
 };

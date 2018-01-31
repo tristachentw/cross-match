@@ -3,21 +3,14 @@ import { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from './actions';
-import Square from './components/square';
+import Stage from './components/stage';
 
 class App extends Component {
   render() {
     return (
-      <div className='board'>
-        {this.props.game.map((xRow, x) => {
-          return xRow.map((yRow, y) => {
-            return <Square
-              key={y}
-              actions={this.props.actions}
-              {...this.props.game[x][y]}
-            ></Square>;
-          });
-        })}
+      <div>
+        <div>Score:{this.props.game.score}</div>
+        <Stage {...this.props}></Stage>
       </div>
     );
   }
